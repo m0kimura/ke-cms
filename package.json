@@ -1,5 +1,5 @@
 {
-  "name": "kncms",
+  "name": "ke-cms",
   "description": "Kmrweb.net Contents Management System Library",
   "keywords": [
     "CMS",
@@ -8,22 +8,18 @@
   ],
   "homepage": "http://www.kmrweb.net/server/cms.html",
   "license": "MIT",
-  "version": "1.1.2",
+  "version": "1.0.0",
   "author": {
     "name": "michihiro kimura",
     "email": "kimura@kmrweb.net"
   },
-  "repository": {
-    "type": "git",
-    "url": "git://github.org/m0kimura/kxcms.git"
-  },
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "cookie": "^0.3.1",
-    "ke-utility": "^1.0.0"
+    "ke-utility": "^1.2.1"
   },
   "engines": {
     "node": ">=4.2.6"
   },
-  "main": "./kncms.js"
+  "main": "./ke-cms.js"
 }
