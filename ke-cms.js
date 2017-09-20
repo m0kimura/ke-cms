@@ -27,7 +27,7 @@ module.exports = class Cms extends Utility {
   server(fn, op) {
     let me=this;
     this.setting(op);
-    op.port=op.port||me.CFG.port||'8080';
+    op.port=process.env.PORT||op.port||me.CFG.port||'8080';
     let l=me.CFG.current.search(/nodejs/);
     me.checkDir(['data', 'local'], me.CFG.current.substr(0, l));
     if(me.argv(0)){
