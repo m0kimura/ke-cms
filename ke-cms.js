@@ -96,7 +96,6 @@ module.exports = class Cms extends Utility {
     op.base=op.base||op.current+'/html';
     op.data=op.data||op.current+'/data';
     op.local=op.local||op.current+'/local';
-    console.log('#38', this.CFG);
     return op;
   }
 /**
@@ -363,7 +362,7 @@ module.exports = class Cms extends Utility {
       if(!me.getInfoj(base)){
         res.writeHead(404, {'Content-Type':  'text/html', 'charset': 'utf-8'});
         res.end('ERROR putHTML');
-        me.errorLog('GET CONFIG FILE');
+        me.errorLog('GET CONFIG FILE:'+me.error);
         return;
       }else{
         if(!me.isExist(base+url)){
