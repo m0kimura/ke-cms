@@ -17,7 +17,7 @@ module.exports = class Cms extends Utility {
     super();
     this.CON={}; this.SS={};
   }
-/**
+  /**
  * サーバー起動
  * @param  {Function} fn RESTインターフェイス処理
  * @param  {Object}   op 起動オプション
@@ -37,7 +37,7 @@ module.exports = class Cms extends Utility {
       me.CON.today=me.today('Y/M/D'); me.CON.timesift=false;
     }
     me.menuBuild(op);
-//
+    //
     me.Server=Http.createServer((req, res)=> {
       let error=true;
       me.menuBuild(op);
@@ -65,7 +65,6 @@ module.exports = class Cms extends Utility {
         res.writeHead(200, {'Content-Type': 'text/plane', 'charset': 'utf-8'}); res.end('OK');
         break;
       default:
-        error=fn(me.SS, me);
         if(me.SS.GET.setdate){me.debugSetdate(res, op);}
         me.putHtml(me.SS.URI.pathname, op.base, res); me.SS.INFOJ=me.INFOJ;
         try{
@@ -75,11 +74,11 @@ module.exports = class Cms extends Utility {
           me.infoLog('data', me.SS);
         }
       }
-//
+      //
     }).listen(op.port);
     me.infoLog('サーバーが開始しました。 port:' + op.port);
   }
-/**
+  /**
  * 実行オプションのセット（省略値解釈）
  * @param  {Object} op オプションオブジェクト
  * @return {Object}    編集後オプションオブジェクト
@@ -91,14 +90,15 @@ module.exports = class Cms extends Utility {
     op.starter=op.starter||'index.html';
     op.template=op.template||'Template1.frm';
     let l=this.CFG.current.search(/nodejs/);
+    console.log(l, this.CFG.current);
     if(l<0){op.current=op.current||this.CFG.current;}
-    else{op.current=op.current||this.CFG.current.substr(0, l);}
+    else{op.current=op.current||this.CFG.current.substr(0, l-1);}
     op.base=op.base||op.current+'/html';
     op.data=op.data||op.current+'/data';
     op.local=op.local||op.current+'/local';
     return op;
   }
-/**
+  /**
  * セッションイン時の処理・クッキー情報など
  * @param  {Object} req http request インターフェイス
  * @param  {Object} res http response インターフェイス
@@ -127,7 +127,7 @@ module.exports = class Cms extends Utility {
     }
     me.SS.cid=wk.cid; me.SS.token=wk.token;
   }
-/**
+  /**
  * リクエストストリング（URI)の解析・分解
  * @param  {Object} req httpリクエストインターフェイス
  * @return {Void]}      none
@@ -150,10 +150,10 @@ module.exports = class Cms extends Utility {
       let a=me.SS.URI.query.split('&');
       let b, i; for(i in a){b=a[i].split('='); me.SS.GET[b[0]]=b[1];}
     }
-//
+    //
     if(me.SS.PATH[1]=='cms'){me.SS.Apli=me.SS.PATH[2];}
   }
-/**
+  /**
  * ウッキー情報の取り出し
  * @param  {Object} req http リクエストインターフェイス
  * @return {Array}      クッキーストリング配列
@@ -179,7 +179,7 @@ module.exports = class Cms extends Utility {
     me.SS.cookies=out;
     return out;
   }
-/**
+  /**
  * クッキーインタフェイスへのセット
  * @param  {String} key   クッキーキー
  * @param  {String} value クッキー値
@@ -188,7 +188,7 @@ module.exports = class Cms extends Utility {
   setCookies(key, value) {
     this.SS.cookies[key]=value;
   }
-/**
+  /**
  * クッキー血の参照
  * @param  {String} key クッキーキー
  * @return {String}     参照値
@@ -197,7 +197,7 @@ module.exports = class Cms extends Utility {
   valCookies(key) {
     return this.SS.cookies[key];
   }
-/**
+  /**
  * 出力用クッキーストリングの編集
  * @return {String} 出力用クッキーストリング
  * @method
@@ -215,7 +215,7 @@ module.exports = class Cms extends Utility {
     }
     return out;
   }
-/**
+  /**
  * コンテンツタイプを拡張子から編集
  * @param  {String} mdf 拡張子
  * @return {String}     コンテンツタイプ
@@ -229,7 +229,7 @@ module.exports = class Cms extends Utility {
       'ico': 'image/x-icon'
     }[mdf]||'plain/text';
   }
-/**
+  /**
  * 単純なファイル転送手続き
  * @param  {Object} res  httpレスポンスインターフェイス
  * @param  {Steing} base 基準フォルダ
@@ -237,7 +237,10 @@ module.exports = class Cms extends Utility {
  * @method
  */
   putFile(res, base) {
-    let me=this; let i=me.SS.PATH.length-1, path=me.SS.PATH[i];
+    let me=this; let i=0, path='', c='';
+    for(i=2; i<me.SS.PATH.length; i++){
+      path+=c+me.SS.PATH[i]; c='/';
+    }
     Fs.readFile(base+path, function(err, data){
       if(err){
         me.infoLog('putFile 404:'+base+path);
@@ -251,7 +254,7 @@ module.exports = class Cms extends Utility {
       }
     });
   }
-/**
+  /**
  * パラメータ展開による出力（CSSなど）
  * @param  {Object} res  httpレスポンスインターフェイス
  * @param  {string} base 基本ホルダ
@@ -274,7 +277,7 @@ module.exports = class Cms extends Utility {
     });
     res.end(me.parm(txt, dt), 'utf8');
   }
-/**
+  /**
  * ソースデータ用の「<>」などのエスケープ出力
  * @param  {Object} res  httpレスポンスインターフェイス
  * @param  {String} base 基本フォルダ
@@ -296,7 +299,7 @@ module.exports = class Cms extends Utility {
       res.end('');
     }
   }
-/**
+  /**
  * コンフィグ情報（INFOJ）を送信
  * @param  {Object} res httpレスポンスインターフェイス
  * @return {Void}       none
@@ -323,7 +326,7 @@ module.exports = class Cms extends Utility {
     });
     res.end(data);
   }
-/**
+  /**
  * タイムシフト再生
  * @param  {Object} res httpレスポンスオブジェクト
  * @param  {Object} op  実行オプション
@@ -338,7 +341,7 @@ module.exports = class Cms extends Utility {
       me.menuBuild(op);
     }
   }
-/**
+  /**
  * 通常のCMS展開出力
  * @param  {String} url  指定URL
  * @param  {string} base 基本フォルダ
@@ -400,7 +403,7 @@ module.exports = class Cms extends Utility {
       res.end('');
     }
   }
-/**
+  /**
  * INFOJテーブルを作成
  * @param  {String} base 基本フォルダ
  * @return {Void}        none
@@ -429,7 +432,7 @@ module.exports = class Cms extends Utility {
     me.INFOJ.loaded='yes';
     return me.INFOJ.CmsVersion;
   }
-/**
+  /**
  * ページ定義ファイルの読み込み
  * @param  {String} fname ファイル名
  * @param  {String} base  基本フォルダ
@@ -464,7 +467,7 @@ module.exports = class Cms extends Utility {
       return {};
     }
   }
-/**
+  /**
  * 階層化対応
  * @param  {Array} lines 階層データ
  * @return {Void}       none
@@ -488,7 +491,7 @@ module.exports = class Cms extends Utility {
     }
 
   }
-/**
+  /**
  * HTMLへの挿入と展開
  * @param  {String} buf  バッファデータ
  * @param  {String} base 基本フォルダ
@@ -510,7 +513,7 @@ module.exports = class Cms extends Utility {
     return $.html();
 
   }
-/**
+  /**
  * スクリプトタグの追加（Jquery,Google,responsive）
  * @param  {Object} $ Jqueryオブジェクト
  * @return {Object}   編集後オブジェクト
@@ -540,7 +543,7 @@ module.exports = class Cms extends Utility {
     return $;
 
   }
-/**
+  /**
  * Attr[cms-page]を展開
  * @param  {Object} $  Jqueryオブジェクト
  * @param  {Object} dt 展開変数
@@ -556,7 +559,7 @@ module.exports = class Cms extends Utility {
     });
     return $;
   }
-/**
+  /**
  * HTML文字をエスケープ
  * @param  {String} x      対象文字列
  * @param  {Boolean} force 奇数、偶数行クラスを編集するtrue/false
@@ -597,7 +600,7 @@ module.exports = class Cms extends Utility {
     if(f){out+='&nbsp;</p>'+NL;}
     return out;
   }
-/**
+  /**
  * Attr[cms-include]を展開
  * @param  {Object} $ Jqueryオブジェクト
  * @return {Object}   展開結果オブジェクト
@@ -616,7 +619,7 @@ module.exports = class Cms extends Utility {
     return $;
 
   }
-/**
+  /**
  * Attr[cms-parts]を展開
  * @param  {Object} $ Jqueryオブジェクト
  * @return {Object}   展開結果オブジェクト
@@ -642,7 +645,7 @@ module.exports = class Cms extends Utility {
     });
     return $;
   }
-/**
+  /**
  * Attr[cms-frame]を展開
  * @param  {Object} $ 編集対象Jqueryオブジェクト
  * @return {Object}   展開後結果オブジェクト
@@ -668,7 +671,7 @@ module.exports = class Cms extends Utility {
     });
     return $;
   }
-/**
+  /**
  * Attr[cms-block]を展開
  * @param  {Object} $ 対象Jqueryオブジェクト
  * @return {Object}   展開後オブジェクト
@@ -684,7 +687,7 @@ module.exports = class Cms extends Utility {
     });
     return $;
   }
-/**
+  /**
  * Attr[cms-css]を展開
  * @param  {Object} $ 対象Jqueryオブジェクト
  * @return {Object}   展開結果オブジェクト
@@ -712,7 +715,7 @@ module.exports = class Cms extends Utility {
 
     x+='</div>'; $('body').append(x); return $;
   }
-/**
+  /**
  * パンくずパーツ生成
  * @return {String} パンくずパーツHTML
  * @method
@@ -743,7 +746,7 @@ module.exports = class Cms extends Utility {
     return out;
 
   }
-/**
+  /**
  * ナビゲーションパーツ生成
  * @return {String} ナビゲーションパーツHTMLテキスト
  * @method
@@ -760,7 +763,7 @@ module.exports = class Cms extends Utility {
     out=me.develop(base+'/template/'+mem+'.frm', dt);
     return out;
   }
-/**
+  /**
  * サイドメニューパーツ生成
  * @return {String} サイドメニューHTMLテキスト
  * @method
@@ -769,20 +772,22 @@ module.exports = class Cms extends Utility {
     let me=this, out='', base=me.INFO.base;
     let mem=me.INFOJ.sidemenu_form||'menu2';
 
-//    let dt=me.getJson(base+'/template/'+data+'.json');
+    //    let dt=me.getJson(base+'/template/'+data+'.json');
     let dt=me.selection('side');
     out=me.develop2(base+'/template/'+mem+'.frm', dt);
 
     return out;
   }
-//let base=me.INFOJ['base'];
-// foot フッタパーツ
-//
+  /**
+   * フッターパーツ
+   * @return {String} フッター用HTMLストリング
+   * @method
+   */
   foot() {
     let me=this, out='', base=me.INFOJ.base;
     let mem=me.INFOJ.foot_form||'footer1';
 
- //   let dt=me.getJson(base+'/template/'+data+'.json');
+    //   let dt=me.getJson(base+'/template/'+data+'.json');
     let dt=me.selection('top2');
     let ix; for(ix in dt){
       if(dt[ix].url==me.INFOJ.url){dt[ix].now='now';}else{dt[ix].now='';}
@@ -791,7 +796,7 @@ module.exports = class Cms extends Utility {
 
     return out;
   }
-/**
+  /**
  * ページ内ガードパーツ生成
  * @return {String} 結果HTMLテキスト
  * @method
@@ -800,14 +805,14 @@ module.exports = class Cms extends Utility {
     let me=this, out='', base=me.INFOJ.base;
     let mem=me.INFOJ.guide_form||'menu3';
 
-//    let dt=me.getJson(base+'/template/'+data+'.json');
+    //    let dt=me.getJson(base+'/template/'+data+'.json');
     let a=me.INFOJ.url.split('#');
     let dt=me.selection('section', a[0]);
     out=me.develop(base+'/template/'+mem+'.frm', dt);
 
     return out;
   }
-/**
+  /**
  * グループ内メニューパーツ生成
  * @return {string} 結果HTMLテキスト
  * @method
@@ -816,13 +821,13 @@ module.exports = class Cms extends Utility {
     let me=this, out='', base=me.INFOJ.base;
     let mem=me.INFOJ.navbar_form||'menu4';
 
-//    let dt=me.getJson(base+'/template/'+data+'.json');
+    //    let dt=me.getJson(base+'/template/'+data+'.json');
     let dt=me.selection('sibling', me.INFOJ.Group);
     out=me.develop(base+'/template/'+mem+'.frm', dt);
 
     return out;
   }
-/**
+  /**
  * 更新履歴パーツ生成
  * @return {string} 結果HTMLテキスト
  * @method
@@ -849,7 +854,7 @@ module.exports = class Cms extends Utility {
     if(!txt){txt='<p>'+me.error+'</p>';}
     return txt;
   }
-/**
+  /**
  * ２段階構造展開パーツ生成
  * @param  {String}  fname テンプレートファイル名
  * @param  {Object}  dt    変数テーブル
@@ -868,11 +873,14 @@ module.exports = class Cms extends Utility {
         if(d[0].charCodeAt(0)==65279){d[0]=d[0].substr(1);} // bom除去feff
         if(d[0].charCodeAt(0)==65534){d[0]=d[0].substr(1);} // bom除去fffe
       }
-      for(let i in d){switch(d[i]){
-      case '-HEAD': k=d[i]; break; case '-BODY': k=d[i]; break; case '-FOOT': k=d[i]; break;
-      case '-BHEAD': k=d[i]; break;case '-BFOOT': k=d[i]; break;
-      default: f[k]+=d[i]+NL;
-      }}
+      for(let i in d){
+        switch(d[i]){
+        case '-HEAD': k=d[i]; break; case '-BODY': k=d[i]; break;
+        case '-FOOT': k=d[i]; break;
+        case '-BHEAD': k=d[i]; break;case '-BFOOT': k=d[i]; break;
+        default: f[k]+=d[i]+NL;
+        }
+      }
     }else{return false;}
     out=me.parm(f['-HEAD'], dt[ix]);
     let url, a, l, y=-1;
@@ -897,7 +905,7 @@ module.exports = class Cms extends Utility {
 
     return out;
   }
-/**
+  /**
  * メニューデータをパターン選択
  * @param  {String} type パターン top/top2/2nd/sibling/side
  * @param  {String} grp  グループID
@@ -932,7 +940,7 @@ module.exports = class Cms extends Utility {
     }
     return out;
   }
-/**
+  /**
  * ツールボックスパーツ
  * @return {Void} none
  * @method
@@ -949,7 +957,7 @@ module.exports = class Cms extends Utility {
       if(!f){me.INFOJ.prevp=dt[i].url; me.INFOJ.prevpa=dt[i].title;}
     }
   }
-/**
+  /**
  * カラーサンプルを生成
  * @return {String} HTMLテキスト
  * @method
@@ -957,7 +965,7 @@ module.exports = class Cms extends Utility {
   color() {
     return CLR.colorSample();
   }
-/**
+  /**
  * メニューデータのインコア
  * @param  {Object}  op    実行オプション
  * @param  {Boolean} force 日付に関係なく更新 true/false
@@ -1025,7 +1033,7 @@ module.exports = class Cms extends Utility {
     me.infoLog('メニュー更新しました。cnt=' + cnt);
 
   }
-/**
+  /**
  * サイトマップXMLの生成
  * @param  {Object} res httpレスポンスインターフェイス
  * @return {String}     生成XMLテキスト
@@ -1051,7 +1059,7 @@ module.exports = class Cms extends Utility {
     });
     res.end(out);
   }
-/**
+  /**
  * メニューデータのソート
  * @param  {Array}  dt  メニューオブジェクト配列
  * @param  {String} key キー項目
@@ -1073,7 +1081,7 @@ module.exports = class Cms extends Utility {
     }
     return dt;
   }
-/**
+  /**
  * 有効期間の判定
  * @param  {String}  term 有効期間表示（yy/mm/dd:yy/mm/dd）
  * @return {Boolean}      true/false OK/NG
@@ -1097,7 +1105,7 @@ module.exports = class Cms extends Utility {
     return true;
 
   }
-/**
+  /**
  * セッションデータのクリーンアップ
  * @param  {Object} op 実行オプション
  * @return {Void}      none
