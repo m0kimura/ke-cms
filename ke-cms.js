@@ -526,7 +526,6 @@ module.exports = class Cms extends Utility {
     $('body').append('<script type="text/javascript" '+
       'src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"> </script>');
     $('body').append('<script type="text/javascript" src="/repository/responsive.js"> </script>');
-    $('body').append('<script language="javascript">RES.begin({loadConfig: "yes"});</script>');
 
     if(me.INFOJ.Analytics.account){
       let x='<script> \n';
@@ -755,7 +754,7 @@ module.exports = class Cms extends Utility {
     let me=this;
     let out='', mem, base, dt, ix;
 
-    base=me.INFOJ.base; mem=me.INFOJ.navbar_form||'menu1';
+    base=me.INFOJ.base; mem=me.INFOJ.navbar_form||'navbar';
     dt=me.selection('top');
     for(ix in dt){if(dt[ix].group==me.SS.PATH[1]){dt[ix].now='now';}else{dt[ix].now='';}}
     if(me.SS.PATH.length==2){dt[0].now='now';}
@@ -786,13 +785,23 @@ module.exports = class Cms extends Utility {
   foot() {
     let me=this, out='', base=me.INFOJ.base;
     let mem=me.INFOJ.foot_form||'footer1';
+    let sel=me.INFOJ.foot_selection||'top2';
+    let dt, ix;
 
     //   let dt=me.getJson(base+'/template/'+data+'.json');
-    let dt=me.selection('top2');
-    let ix; for(ix in dt){
-      if(dt[ix].url==me.INFOJ.url){dt[ix].now='now';}else{dt[ix].now='';}
+    if(sel!='none'){
+      dt=me.selection(sel);
+      for(ix in dt){
+        if(dt[ix].url==me.INFOJ.url){dt[ix].now='now';}else{dt[ix].now='';}
+      }
+    }else{
+      dt=[];
     }
-    out=me.develop2(base+'/template/'+mem+'.frm', dt, 'top2');
+    if(sel=='top2'){
+      out=me.develop2(base+'/template/'+mem+'.frm', dt, sel);
+    }else{
+      out=me.develop(base+'/template/'+mem+'.frm', dt, sel);
+    }
 
     return out;
   }
@@ -819,7 +828,7 @@ module.exports = class Cms extends Utility {
  */
   menu() {
     let me=this, out='', base=me.INFOJ.base;
-    let mem=me.INFOJ.navbar_form||'menu4';
+    let mem=me.INFOJ.navbar_form||'gmenu';
 
     //    let dt=me.getJson(base+'/template/'+data+'.json');
     let dt=me.selection('sibling', me.INFOJ.Group);
