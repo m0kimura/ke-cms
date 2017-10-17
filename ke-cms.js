@@ -58,6 +58,7 @@ module.exports = class Cms extends Utility {
       case 'frame': error=me.putFile(res, op.base+'/frame/'); break;
       case 'config': error=me.sendConfig(res); break;
       case 'repository': error=me.putFile(res, op.current+'/repository/'); break;
+      case 'parts': error=me.genFile(res, op.current+'/'); break;
       case 'source': error=me.putEscape(res, op.base+'/source/'); break;
       case 'favicon.ico': error=me.putFile(res, op.base+'/image/'); break;
       case 'sitemap.xml': error=me.sitemap(res); break;
@@ -90,7 +91,6 @@ module.exports = class Cms extends Utility {
     op.starter=op.starter||'index.html';
     op.template=op.template||'Template1.frm';
     let l=this.CFG.current.search(/nodejs/);
-    console.log(l, this.CFG.current);
     if(l<0){op.current=op.current||this.CFG.current;}
     else{op.current=op.current||this.CFG.current.substr(0, l-1);}
     op.base=op.base||op.current+'/html';
@@ -253,6 +253,100 @@ module.exports = class Cms extends Utility {
         res.end(data);
       }
     });
+  }
+  genFile(res, base) {
+    let me=this; let i=0, path='', c='';
+    for(i=2; i<me.SS.PATH.length; i++){
+      path+=c+me.SS.PATH[i]; c='/';
+    }
+    if(path.substr(path.length-3, 3)=='.js'){this.genFileJs(res, base, path);}
+    else{this.genFileCss(res, base, path);}
+  }
+  /**
+   * jsファイルを併合して出力
+   * @param  {Object} res  responseオブジェクト
+   * @param  {String} base 基底パス
+   * @return {Void}        none
+   * @method
+   */
+  genFileJs(res, base, path) {
+    let me=this; let i=0, jsf, obj, j, out='', w, a;
+    a='let Kw=new kwResponsive({loadConfig: "yes"}';
+    jsf=base+'html/js/'+path.substr(0, path.length-3)+'.json';
+    obj=me.getJson(jsf);
+    if(!obj){
+      me.infoLog('genFileJS not found json:'+jsf);
+      res.writeHead(404, 'NOT FOUND', {'content-type': 'text/html'});
+      res.end();
+      return;
+    }
+    try{
+      w=Fs.readFileSync(base+'repository/kwBase.js').toString(); out+=NL+w;
+      w=Fs.readFileSync(base+'repository/kwResponsive.js').toString(); out+=NL+w;
+      for(i in obj){
+        if(me.validation(obj[i].effect)){
+          for(j in obj[i].modules){
+            w=Fs.readFileSync(base+'repository/'+obj[i].modules[j]+'.js').toString();
+            out+=NL+w; a+=', '+obj[i].modules[j];
+          }
+          break;
+        }
+      }
+    }catch(e){
+      me.infoLog('genFileJs 404:'+base+path);
+      res.writeHead(404, 'NOT FOUND', {'content-type': 'text/html'});
+      res.end();
+      return;
+    }
+    out+=NL+a+');';
+    res.writeHead(200, {
+      'Content-Type': me.ctype(me.modifier(base+path)), 'charset': 'utf-8'
+    });
+    res.end(out);
+  }
+  /**
+   * jcssファイルを併合して出力
+   * @param  {Object} res  responseオブジェクト
+   * @param  {String} base 基底パス
+   * @return {Void}        none
+   * @method
+   */
+  genFileCss(res, base, path) {
+    let me=this; let i=0, jsf, obj, j, out='', w;
+    let bcolor=me.INFOJ.Basecolor||'Ruby';
+    let dt=CLR.setColor(bcolor);
+    let d=CLR.setFont(''); for(i in d){dt[i]=d[i];}
+    jsf=base+'html/css/'+path.substr(0, path.length-4)+'.json';
+    obj=me.getJson(jsf);
+    if(!obj){
+      me.infoLog('genFileCss not found json:'+jsf);
+      res.writeHead(404, 'NOT FOUND', {'content-type': 'text/html'});
+      res.end();
+      return;
+    }
+    try{
+      for(i in obj){
+        if(me.validation(obj[i].effect)){
+          if(obj[i].modules){for(j in obj[i].modules){
+            w=Fs.readFileSync(base+'html/css/'+obj[i].modules[j]+'.css').toString();
+            out+=NL+me.parm(w, dt);
+          }}
+          if(obj[i].lines){for(j in obj[i].lines){
+            out+=NL+me.parm(obj[i].lines[j], dt);
+          }}
+          break;
+        }
+      }
+    }catch(e){
+      me.infoLog('genFileCss 404:'+base+path);
+      res.writeHead(404, 'NOT FOUND', {'content-type': 'text/html'});
+      res.end();
+      return;
+    }
+    res.writeHead(200, {
+      'Content-Type': me.ctype(me.modifier(base+path)), 'charset': 'utf-8'
+    });
+    res.end(out);
   }
   /**
  * パラメータ展開による出力（CSSなど）
@@ -509,7 +603,7 @@ module.exports = class Cms extends Utility {
     $=me.devCss($); $=me.devPage($, dt); $=me.devInclude($);
     $=me.devParts($); $=me.devFrame($); $=me.devBlock($);
     if(me.CFG.mode=='debug'){$=me.debugInfo($);}
-    if(me.INFOJ.Use=='responsive'){$=me.appendScript($, 'responsive');}
+    if(me.INFOJ.Use){$=me.appendScript($, me.INFOJ.Use);}
     return $.html();
 
   }
@@ -519,14 +613,14 @@ module.exports = class Cms extends Utility {
  * @return {Object}   編集後オブジェクト
  * @method
  */
-  appendScript($) {
+  appendScript($, member) {
     let me=this;
-    if(!me.INFOJ.Analytics){return $;}
 
     $('body').append('<script type="text/javascript" '+
       'src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"> </script>');
-    $('body').append('<script type="text/javascript" src="/repository/responsive.js"> </script>');
+    $('body').append('<script type="text/javascript" src="/parts/'+member+'.js"> </script>');
 
+    if(!me.INFOJ.Analytics){return $;}
     if(me.INFOJ.Analytics.account){
       let x='<script> \n';
       x+='(function(i,s,o,g,r,a,m){i[\'GoogleAnalyticsObject\']=r;i[r]=i[r]||function(){';
