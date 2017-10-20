@@ -77,7 +77,7 @@ module.exports = class Cms extends Utility {
       }
       //
     }).listen(op.port);
-    me.infoLog('サーバーが開始しました。 port:' + op.port);
+    me.infoLog('サーバーが開始しました。 v2.1 port:' + op.port);
   }
   /**
  * 実行オプションのセット（省略値解釈）
@@ -550,7 +550,7 @@ module.exports = class Cms extends Utility {
           k=a[0].substr(1); if(!me.validation(a[1])){k='';}
         }else{
           if(k!=''){
-            f[k]+=d[i]+NL;
+            if(f[k]){f[k]+=d[i]+NL;}else{f[k]=d[i]+NL;}
           }
         }
       }
@@ -648,7 +648,7 @@ module.exports = class Cms extends Utility {
     $('[cms-page]').each(function(){
       f=$(this).attr('cms-page');
       txt=me.parm(dt[f]);
-      $(this).html(me.escape(txt));
+      if(txt){$(this).html(me.escape(txt));}
     });
     return $;
   }
