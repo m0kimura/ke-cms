@@ -237,22 +237,21 @@ module.exports = class Cms extends Utility {
  * @method
  */
   putFile(res, base) {
-    let me=this; let i=0, path='', c='';
+    let me=this; let i=0, path='', c='', data;
     for(i=2; i<me.SS.PATH.length; i++){
       path+=c+me.SS.PATH[i]; c='/';
     }
-    Fs.readFile(base+path, function(err, data){
-      if(err){
-        me.infoLog('putFile 404:'+base+path);
-        res.writeHead(404, 'NOT FOUND', {'content-type': 'text/html'});
-        res.end();
-      }else{
-        res.writeHead(200, {
-          'Content-Type': me.ctype(me.modifier(base+path)), 'charset': 'utf-8'
-        });
-        res.end(data);
-      }
-    });
+    try{
+      data=Fs.readFileSync(base+path);
+      res.writeHead(200, {
+        'Content-Type': me.ctype(me.modifier(base+path)), 'charset': 'utf-8'
+      });
+      res.end(data);
+    }catch(err){
+      me.infoLog('putFile 404:'+base+path);
+      res.writeHead(404, 'NOT FOUND', {'content-type': 'text/html'});
+      res.end();
+    }
   }
   genFile(res, base) {
     let me=this; let i=0, path='', c='';
