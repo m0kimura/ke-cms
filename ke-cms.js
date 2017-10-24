@@ -6,12 +6,10 @@ const Http=require('http');
 const Url=require('url');
 const Cheerio=require('cheerio');
 const NL=String.fromCharCode(0x0a);
-
-module.exports = class Cms extends Utility {
+module.exports=class Cms extends Utility {
 /**
  * オブジェクトコンストラクション
- * @return {Void}    none
- * @constructor
+ * @constructor Cms
  */
   constructor() {
     super();
@@ -19,10 +17,10 @@ module.exports = class Cms extends Utility {
   }
   /**
  * サーバー起動
+ * @method server
  * @param  {Function} fn RESTインターフェイス処理
  * @param  {Object}   op 起動オプション
  * @return {Void}        none
- * @method
  */
   server(fn, op) {
     let me=this;
@@ -81,9 +79,9 @@ module.exports = class Cms extends Utility {
   }
   /**
  * 実行オプションのセット（省略値解釈）
+ * @method setting
  * @param  {Object} op オプションオブジェクト
  * @return {Object}    編集後オプションオブジェクト
- * @method
  */
   setting(op) {
     op=op||{}; for(let k in op){this.CFG[k]=op[k];}
@@ -104,7 +102,7 @@ module.exports = class Cms extends Utility {
  * @param  {Object} res http response インターフェイス
  * @param  {Object} op  実行オプション
  * @return {Void}      none
- * @method
+ * @method sessionIn
  */
   sessionIn(req, res, op) {
     let me=this, wk={};
@@ -130,8 +128,8 @@ module.exports = class Cms extends Utility {
   /**
  * リクエストストリング（URI)の解析・分解
  * @param  {Object} req httpリクエストインターフェイス
- * @return {Void]}      none
- * @method
+ * @return {Void}      none
+ * @method analyzeRequest
  */
   analyzeRequest(req) {
     let me=this;
@@ -157,7 +155,7 @@ module.exports = class Cms extends Utility {
  * ウッキー情報の取り出し
  * @param  {Object} req http リクエストインターフェイス
  * @return {Array}      クッキーストリング配列
- * @method
+ * @method getCookies
  */
   getCookies(req) {
     let me=this; let key, value, i, x, y, f, out={};
@@ -183,7 +181,7 @@ module.exports = class Cms extends Utility {
  * クッキーインタフェイスへのセット
  * @param  {String} key   クッキーキー
  * @param  {String} value クッキー値
- * @method
+ * @method setCookies
  */
   setCookies(key, value) {
     this.SS.cookies[key]=value;
@@ -192,7 +190,7 @@ module.exports = class Cms extends Utility {
  * クッキー血の参照
  * @param  {String} key クッキーキー
  * @return {String}     参照値
- * @method
+ * @method valCookies
  */
   valCookies(key) {
     return this.SS.cookies[key];
@@ -200,7 +198,7 @@ module.exports = class Cms extends Utility {
   /**
  * 出力用クッキーストリングの編集
  * @return {String} 出力用クッキーストリング
- * @method
+ * @method putCookies
  */
   putCookies() {
     let me=this; let out=[], x, i, j;
@@ -219,7 +217,7 @@ module.exports = class Cms extends Utility {
  * コンテンツタイプを拡張子から編集
  * @param  {String} mdf 拡張子
  * @return {String}     コンテンツタイプ
- * @method
+ * @method ctype
  */
   ctype(mdf) {
     return {
@@ -234,7 +232,7 @@ module.exports = class Cms extends Utility {
  * @param  {Object} res  httpレスポンスインターフェイス
  * @param  {Steing} base 基準フォルダ
  * @return {Void}        none
- * @method
+ * @method putFile
  */
   putFile(res, base) {
     let me=this; let i=0, path='', c='', data;
@@ -308,7 +306,7 @@ module.exports = class Cms extends Utility {
    * @param  {Object} res  responseオブジェクト
    * @param  {String} base 基底パス
    * @return {Void}        none
-   * @method
+   * @method genFileCss
    */
   genFileCss(res, base, path) {
     let me=this; let i=0, jsf, obj, j, out='', w;
@@ -352,7 +350,7 @@ module.exports = class Cms extends Utility {
  * @param  {Object} res  httpレスポンスインターフェイス
  * @param  {string} base 基本ホルダ
  * @return {Void}        none
- * @method
+ * @method putExpand
  */
   putExpand(res, base) {
     let me=this, path=me.SS.PATH[me.SS.PATH.length-1];
@@ -375,7 +373,7 @@ module.exports = class Cms extends Utility {
  * @param  {Object} res  httpレスポンスインターフェイス
  * @param  {String} base 基本フォルダ
  * @return {Void}        none
- * @method
+ * @method putEscape
  */
   putEscape(res, base) {
     let me=this, path=me.SS.PATH[me.SS.PATH.length-1];
@@ -396,7 +394,7 @@ module.exports = class Cms extends Utility {
  * コンフィグ情報（INFOJ）を送信
  * @param  {Object} res httpレスポンスインターフェイス
  * @return {Void}       none
- * @method
+ * @method sendConfig
  */
   sendConfig (res){
     let me=this; let a, i, data, con={};
@@ -424,7 +422,7 @@ module.exports = class Cms extends Utility {
  * @param  {Object} res httpレスポンスオブジェクト
  * @param  {Object} op  実行オプション
  * @return {Void}       none
- * @method
+ * @method debugSetdate
  */
   debugSetdate(res, op) {
     let me=this; let date;
@@ -440,7 +438,7 @@ module.exports = class Cms extends Utility {
  * @param  {string} base 基本フォルダ
  * @param  {Object} res  httpレスポンスオブジェクト
  * @return {Void}        none
- * @method
+ * @method putHtml
  */
   putHtml(url, base, res) {
     let me=this; let code=200;
@@ -500,7 +498,7 @@ module.exports = class Cms extends Utility {
  * INFOJテーブルを作成
  * @param  {String} base 基本フォルダ
  * @return {Void}        none
- * @method
+ * @method getInfoj
  */
   getInfoj(base) {
     let me=this; let a, f, k, i, j, d, r, l; let fn='index.cfg', path=me.SS.PATH;
@@ -530,7 +528,7 @@ module.exports = class Cms extends Utility {
  * @param  {String} fname ファイル名
  * @param  {String} base  基本フォルダ
  * @return {Void}         none
- * @method
+ * @method pageinfo
  */
   pageinfo(fname, base) {
     let me=this;
@@ -564,7 +562,7 @@ module.exports = class Cms extends Utility {
  * 階層化対応
  * @param  {Array} lines 階層データ
  * @return {Void}       none
- * @method
+ * @method layer
  */
   layer(lines) {
     let me=this;
@@ -590,7 +588,7 @@ module.exports = class Cms extends Utility {
  * @param  {String} base 基本フォルダ
  * @param  {Object} dt   展開用変数データ
  * @return {String}      HTML文
- * @method
+ * @method expand
  */
   expand(buf, base, dt) {
     let me=this; let txt=me.parm(buf);
@@ -610,7 +608,7 @@ module.exports = class Cms extends Utility {
  * スクリプトタグの追加（Jquery,Google,responsive）
  * @param  {Object} $ Jqueryオブジェクト
  * @return {Object}   編集後オブジェクト
- * @method
+ * @method appendScript
  */
   appendScript($, member) {
     let me=this;
@@ -640,7 +638,7 @@ module.exports = class Cms extends Utility {
  * @param  {Object} $  Jqueryオブジェクト
  * @param  {Object} dt 展開変数
  * @return {Object}    編集後オブジェクト
- * @method
+ * @method devPage
  */
   devPage($, dt) {
     let me=this, f, txt;
@@ -656,7 +654,7 @@ module.exports = class Cms extends Utility {
  * @param  {String} x      対象文字列
  * @param  {Boolean} force 奇数、偶数行クラスを編集するtrue/false
  * @return {String}        結果文字列
- * @method
+ * @method escape
  */
   escape(x, force) {
     force=force||false; let l0, l1;
@@ -696,7 +694,7 @@ module.exports = class Cms extends Utility {
  * Attr[cms-include]を展開
  * @param  {Object} $ Jqueryオブジェクト
  * @return {Object}   展開結果オブジェクト
- * @method
+ * @method devInclude
  */
   devInclude($) {
     let me=this, f, txt;
@@ -715,7 +713,7 @@ module.exports = class Cms extends Utility {
  * Attr[cms-parts]を展開
  * @param  {Object} $ Jqueryオブジェクト
  * @return {Object}   展開結果オブジェクト
- * @method
+ * @method devParts
  */
   devParts($) {
     let me=this, f, txt;
@@ -741,7 +739,7 @@ module.exports = class Cms extends Utility {
  * Attr[cms-frame]を展開
  * @param  {Object} $ 編集対象Jqueryオブジェクト
  * @return {Object}   展開後結果オブジェクト
- * @method
+ * @method devFrame
  */
   devFrame($) {
     let me=this;
@@ -767,7 +765,7 @@ module.exports = class Cms extends Utility {
  * Attr[cms-block]を展開
  * @param  {Object} $ 対象Jqueryオブジェクト
  * @return {Object}   展開後オブジェクト
- * @method
+ * @method devBlock
  */
   devBlock($) {
     let me=this, m, txt;
@@ -783,7 +781,7 @@ module.exports = class Cms extends Utility {
  * Attr[cms-css]を展開
  * @param  {Object} $ 対象Jqueryオブジェクト
  * @return {Object}   展開結果オブジェクト
- * @method
+ * @method devCss
  */
   devCss($) {
     let me=this;
@@ -796,6 +794,7 @@ module.exports = class Cms extends Utility {
    * デバッグ情報をページに追加
    * @parm   {Object} $ 展開対象Jqueryオブジェクト
    * @return {Object}   展開結果オブジェクト
+   * @method debugInfo
    */
   debugInfo($) {
     let me=this;
@@ -810,7 +809,7 @@ module.exports = class Cms extends Utility {
   /**
  * パンくずパーツ生成
  * @return {String} パンくずパーツHTML
- * @method
+ * @method pankuzu
  */
   pankuzu() {
     let me=this; let out, mem, base, mark, dt=[], j;
@@ -841,7 +840,7 @@ module.exports = class Cms extends Utility {
   /**
  * ナビゲーションパーツ生成
  * @return {String} ナビゲーションパーツHTMLテキスト
- * @method
+ * @method navbar
  */
   navbar() {
     let me=this;
@@ -858,7 +857,7 @@ module.exports = class Cms extends Utility {
   /**
  * サイドメニューパーツ生成
  * @return {String} サイドメニューHTMLテキスト
- * @method
+ * @method sidemenu
  */
   sidemenu() {
     let me=this, out='', base=me.INFO.base;
@@ -873,7 +872,7 @@ module.exports = class Cms extends Utility {
   /**
    * フッターパーツ
    * @return {String} フッター用HTMLストリング
-   * @method
+   * @method foot
    */
   foot() {
     let me=this, out='', base=me.INFOJ.base;
@@ -901,7 +900,7 @@ module.exports = class Cms extends Utility {
   /**
  * ページ内ガードパーツ生成
  * @return {String} 結果HTMLテキスト
- * @method
+ * @method guide
  */
   guide() {
     let me=this, out='', base=me.INFOJ.base;
@@ -917,7 +916,7 @@ module.exports = class Cms extends Utility {
   /**
  * グループ内メニューパーツ生成
  * @return {string} 結果HTMLテキスト
- * @method
+ * @method menu
  */
   menu() {
     let me=this, out='', base=me.INFOJ.base;
@@ -932,7 +931,7 @@ module.exports = class Cms extends Utility {
   /**
  * 更新履歴パーツ生成
  * @return {string} 結果HTMLテキスト
- * @method
+ * @method history
  */
   history() {
     let me=this;
@@ -963,7 +962,7 @@ module.exports = class Cms extends Utility {
  * @param  {String}  tp    タイプside/top2
  * @param  {Integer} ix    データインデックス
  * @return {String}        生成結果HTMLテキスト
- * @method
+ * @method develop2
  */
   develop2(fname, dt, tp, ix) {
     let me=this; if(!dt){dt=me.REC;} if(!ix){ix=0;} tp=tp||'top2';
@@ -1012,7 +1011,7 @@ module.exports = class Cms extends Utility {
  * @param  {String} type パターン top/top2/2nd/sibling/side
  * @param  {String} grp  グループID
  * @return {Array}      メニューオブジェクト配列
- * @method
+ * @method selection
  */
   selection(type, grp) {
     let me=this;
@@ -1045,7 +1044,7 @@ module.exports = class Cms extends Utility {
   /**
  * ツールボックスパーツ
  * @return {Void} none
- * @method
+ * @method toolbox
  */
   toolbox() {
     let me=this, dt, i;
@@ -1062,7 +1061,7 @@ module.exports = class Cms extends Utility {
   /**
  * カラーサンプルを生成
  * @return {String} HTMLテキスト
- * @method
+ * @method color
  */
   color() {
     return CLR.colorSample();
@@ -1072,7 +1071,7 @@ module.exports = class Cms extends Utility {
  * @param  {Object}  op    実行オプション
  * @param  {Boolean} force 日付に関係なく更新 true/false
  * @return {Void}          none
- * @method
+ * @method menuBuild
  */
   menuBuild(op, force) {
     let me=this; op=op||{}; force=force||false;
@@ -1139,7 +1138,7 @@ module.exports = class Cms extends Utility {
  * サイトマップXMLの生成
  * @param  {Object} res httpレスポンスインターフェイス
  * @return {String}     生成XMLテキスト
- * @method
+ * @method sitemap
  */
   sitemap(res) {
     let me=this; let out, ix, prty; out='';
@@ -1167,7 +1166,7 @@ module.exports = class Cms extends Utility {
  * @param  {String} key キー項目
  * @param  {String} asc asc/dsc 昇順/降順
  * @return {Array}      結果オブジェクト配列
- * @method
+ * @method sort
  */
   sort(dt, key, asc) {
     let i, j, house, f, t; key=key||'sort'; asc=asc||'asc';
@@ -1187,7 +1186,7 @@ module.exports = class Cms extends Utility {
  * 有効期間の判定
  * @param  {String}  term 有効期間表示（yy/mm/dd:yy/mm/dd）
  * @return {Boolean}      true/false OK/NG
- * @method
+ * @method validation
  */
   validation(term) {
     let me=this; let a;
@@ -1211,7 +1210,7 @@ module.exports = class Cms extends Utility {
  * セッションデータのクリーンアップ
  * @param  {Object} op 実行オプション
  * @return {Void}      none
- * @method
+ * @method cleanup
  */
   cleanup(op) {
     let me=this; op=op||{}; if(op.keepDays==undefined){op.keepDays=3;}
