@@ -58,7 +58,7 @@ module.exports=class Cms extends Utility {
       case 'repository': error=me.putFile(res, op.current+'/repository/'); break;
       case 'parts': error=me.genFile(res, op.current+'/'); break;
       case 'source': error=me.putEscape(res, op.base+'/source/'); break;
-      case 'favicon.ico': error=me.putFile(res, op.base+'/image/'); break;
+      case 'favicon.ico': error=me.putFile(res, op.base+'/image/favicon.ico'); break;
       case 'sitemap.xml': error=me.sitemap(res); break;
       case 'reload': me.menuBuild(op, true); error=false;
         res.writeHead(200, {'Content-Type': 'text/plane', 'charset': 'utf-8'}); res.end('OK');
