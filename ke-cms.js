@@ -1075,7 +1075,7 @@ module.exports=class Cms extends Utility {
  */
   menuBuild(op, force) {
     let me=this; op=op||{}; force=force||false;
-    let dt, fn, out, his, a, b, d, f, g, i, j, k, l, m, n, r, p, u, v, w, x, t;
+    let dt, fn, out, his, a, b, d, f, g, i, j, k, l, m, n, r, p, url, v, w, x, t;
     let base=op.base+'/'; //let local=op.local+'/';
 
     if(force==false){if(me.CON.menuBuild){
@@ -1102,7 +1102,8 @@ module.exports=class Cms extends Utility {
           w={}; for(x in b){v=me.unstring(b[x]); w[v[0]]=v[1];}
           w.Title=w.Title||'no title';
           if(k==''){l=0;}else{l=1;}
-          p=me.lastOf(dt[j], '.'); if(p>0){u='/'+k+dt[j].substr(0, p)+'.html';}else{u='/'+k+dt[j];}
+          p=me.lastOf(dt[j], '.');
+          if(p>0){url='/'+k+dt[j].substr(0, p)+'.html';}else{url='/'+k+dt[j];}
           if(k==''){g='top';}else{g=folders[i];}
           if(w.Short){m=w.Short;}
           else{n=w.Title.search(/\(/); if(n<0){m=w.Title;}else{m=w.Title.substr(0, n);}}
@@ -1110,7 +1111,7 @@ module.exports=class Cms extends Utility {
           if(f){
             t=me.stat(fn).mtime; t=t.substr(0, 2)+'-'+t.substr(2, 2)+'-'+t.substr(4, 2);
             out.push({
-              'sort': w.Sort, 'level': l, 'section': '', 'url': u,
+              'sort': w.Sort, 'level': l, 'section': '', 'url': url,
               'title': w.Title, 'short': m, 'group': g, 'date': t, 'priority': w.Priority||0.5
             });
             cnt++;
@@ -1123,7 +1124,11 @@ module.exports=class Cms extends Utility {
             v=me.unstring(b[x]);
             f=me.repby(me.filepart(dt[j]), '.page', '.html');
             if(v[0]){
-              his.push({'date': v[0], 'title': v[1], 'url': u});
+              if(v[2]){
+                his.push({'date': v[0], 'title': v[1], 'url': url+'#'+v[2]});
+              }else{
+                his.push({'date': v[0], 'title': v[1], 'url': url});
+              }
             }
           }
         }
