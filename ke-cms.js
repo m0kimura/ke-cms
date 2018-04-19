@@ -2,10 +2,11 @@
 const Utility=require('ke-utility');
 const CLR=require('./ke-color.js');
 const Fs=require('fs');
-const Http=require('http');
 const Url=require('url');
 const Cheerio=require('cheerio');
 const NL=String.fromCharCode(0x0a);
+const Http=require('http');
+const Https=require('https');
 module.exports=class Cms extends Utility {
 /**
  * オブジェクトコンストラクション
@@ -24,8 +25,7 @@ module.exports=class Cms extends Utility {
  */
   server(fn, op) {
     let me=this;
-    this.setting(op);
-    op.port=process.env.PORT||op.port||me.CFG.port||'8080';
+    op=this.setting(op);
     let l=me.CFG.current.search(/nodejs/);
     me.checkDir(['data', 'local'], me.CFG.current.substr(0, l));
     if(me.argv(0)){
@@ -35,59 +35,95 @@ module.exports=class Cms extends Utility {
       me.CON.today=me.today('Y/M/D'); me.CON.timesift=false;
     }
     me.menuBuild(op);
-    //
-    me.Server=Http.createServer((req, res)=> {
-      let error=true;
-      me.menuBuild(op);
-      me.sessionIn(req, res, op);
-      me.analyzeRequest(req, res);
-      switch(me.SS.PATH[1]){
-      case 'rest':
-        error=fn(me.SS, me);
-        if(!error){me.sessionOut(req, res);}
-        break;
-      case 'image': error=me.putFile(res, op.base+'/image/'); break;
-      case 'js': error=me.putFile(res, op.base+'/js/'); break;
-      case 'json': error=me.putFile(res, op.base+'/json/'); break;
-      case 'css': error=me.putExpand(res, op.base+'/css/'); break;
-      case 'ext': error=me.putFile(res, op.base+'/ext/'); break;
-      case 'src': error=me.putFile(res, op.base+'/src/'); break;
-      case 'cms': error=me.putFile(res, op.base+'/cms/'); break;
-      case 'frame': error=me.putFile(res, op.base+'/frame/'); break;
-      case 'config': error=me.sendConfig(res); break;
-      case 'repository': error=me.putFile(res, op.current+'/repository/'); break;
-      case 'parts': error=me.genFile(res, op.current+'/'); break;
-      case 'source': error=me.putEscape(res, op.base+'/source/'); break;
-      case 'favicon.ico': error=me.putFile(res, op.base+'/image/favicon.ico'); break;
-      case 'sitemap.xml': error=me.sitemap(res); break;
-      case 'reload': me.menuBuild(op, true); error=false;
-        res.writeHead(200, {'Content-Type': 'text/plane', 'charset': 'utf-8'}); res.end('OK');
-        break;
-      default:
-        if(me.SS.GET.setdate){me.debugSetdate(res, op);}
-        me.putHtml(me.SS.URI.pathname, op.base, res); me.SS.INFOJ=me.INFOJ;
-        try{
-          Fs.writeFileSync(op.data+'/ss_'+me.SS.cid+'.json', JSON.stringify(me.SS), 'utf8');
-        }catch(e){
-          me.sevierLog('Session File Write Error', e);
-          me.infoLog('data', me.SS);
-        }
-      }
-      //
-    }).listen(op.port);
+    let options={};
+    if(op.port=='443'){
+      options = {
+        key: Fs.readFileSync(op.key),
+        cert: Fs.readFileSync(op.csr),
+        passphrase: op.phrase
+      };
+      me.Server=Https.createServer(options, (req, res)=> {
+        me.main(op, req, res);
+      }).listen(op.port);
+      me.Redirect=Http.createServer((req, res)=> {
+        res.writeHead(301, {'Location': 'https://'+ op.domain + req.url});
+        res.end();
+      }).listen('80');
+    }else{
+      me.Server=Http.createServer((req, res)=> {
+        me.main(op, req, res);
+      }).listen(op.port);
+    }
     me.infoLog('サーバーが開始しました。 v2.1 port:' + op.port);
   }
+
   /**
- * 実行オプションのセット（省略値解釈）
- * @method setting
- * @param  {Object} op オプションオブジェクト
- * @return {Object}    編集後オプションオブジェクト
- */
+  * メイン処理
+  * @param  {Object} op  オプションパラメータ
+  * @param  {Object} req リクエストオブジェクト
+  * @param  {Object} res レスポンスオブジェクト
+  * @return {Void}       none
+  * @method
+  */
+  main(op, req, res) {
+    const me=this;
+    let error=true;
+    me.menuBuild(op);
+    me.sessionIn(req, res, op);
+    me.analyzeRequest(req, res);
+    switch(me.SS.PATH[1]){
+    case 'rest':
+      error=fn(me.SS, me);
+      if(!error){me.sessionOut(req, res);}
+      break;
+    case 'image': error=me.putFile(res, op.base+'/image/'); break;
+    case 'js': error=me.putFile(res, op.base+'/js/'); break;
+    case 'json': error=me.putFile(res, op.base+'/json/'); break;
+    case 'css': error=me.putExpand(res, op.base+'/css/'); break;
+    case 'ext': error=me.putFile(res, op.base+'/ext/'); break;
+    case 'src': error=me.putFile(res, op.base+'/src/'); break;
+    case 'cms': error=me.putFile(res, op.base+'/cms/'); break;
+    case 'frame': error=me.putFile(res, op.base+'/frame/'); break;
+    case 'config': error=me.sendConfig(res); break;
+    case 'repository': error=me.putFile(res, op.current+'/repository/'); break;
+    case 'parts': error=me.genFile(res, op.current+'/'); break;
+    case 'source': error=me.putEscape(res, op.base+'/source/'); break;
+    case 'favicon.ico': error=me.putFile(res, op.base+'/image/favicon.ico'); break;
+    case 'sitemap.xml': error=me.sitemap(res); break;
+    case 'reload': me.menuBuild(op, true); error=false;
+      res.writeHead(200, {'Content-Type': 'text/plane', 'charset': 'utf-8'}); res.end('OK');
+      break;
+    default:
+      if(me.SS.GET.setdate){me.debugSetdate(res, op);}
+      me.putHtml(me.SS.URI.pathname, op.base, res); me.SS.INFOJ=me.INFOJ;
+      try{
+        Fs.writeFileSync(op.data+'/ss_'+me.SS.cid+'.json', JSON.stringify(me.SS), 'utf8');
+      }catch(e){
+        me.sevierLog('Session File Write Error', e);
+        me.infoLog('data', me.SS);
+      }
+    }
+    //
+  }
+
+  /**
+  * 実行オプションのセット（省略値解釈）
+  * @method setting
+  * @param  {Object} op オプションオブジェクト
+  * @return {Object}    編集後オプションオブジェクト
+  */
   setting(op) {
-    op=op||{}; for(let k in op){this.CFG[k]=op[k];}
-    this.info(op.group);
-    op.starter=op.starter||'index.html';
-    op.template=op.template||'Template1.frm';
+    const me=this;
+    op=op||{};
+    me.info(op.group);
+    me.CFG.cms=me.CFG.cms||{};
+    op.port=process.env.PORT||op.port||me.CFG.cms.port||'8080';
+    op.starter=op.starter||me.CFG.cms.starter||'index.html';
+    op.template=op.template||me.CFG.cms.template||'Template1.frm';
+    op.key=op.key||me.CFG.cms.keyPath;
+    op.csr=op.csr||me.CFG.cms.csrPath;
+    op.phrase=op.phrase||me.CFG.cms.phrase;
+    op.domain=op.domain||me.CFG.cms.domian||'localhost';
     let l=this.CFG.current.search(/nodejs/);
     if(l<0){op.current=op.current||this.CFG.current;}
     else{op.current=op.current||this.CFG.current.substr(0, l-1);}
