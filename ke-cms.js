@@ -43,7 +43,7 @@ module.exports=class Cms extends Utility {
         passphrase: op.phrase
       };
       me.Server=Https.createServer(options, (req, res)=> {
-        me.main(op, req, res);
+        me.main(op, fn, req, res);
       }).listen(op.port);
       me.Redirect=Http.createServer((req, res)=> {
         res.writeHead(301, {'Location': 'https://'+ op.domain + req.url});
@@ -51,7 +51,7 @@ module.exports=class Cms extends Utility {
       }).listen('80');
     }else{
       me.Server=Http.createServer((req, res)=> {
-        me.main(op, req, res);
+        me.main(op, fn, req, res);
       }).listen(op.port);
     }
     me.infoLog('サーバーが開始しました。 v2.1 port:' + op.port);
@@ -59,13 +59,14 @@ module.exports=class Cms extends Utility {
 
   /**
   * メイン処理
-  * @param  {Object} op  オプションパラメータ
-  * @param  {Object} req リクエストオブジェクト
-  * @param  {Object} res レスポンスオブジェクト
-  * @return {Void}       none
+  * @param  {Object}    op  オプションパラメータ
+  * @param  {Function}  fn  REST処理手続き
+  * @param  {Object}    req リクエストオブジェクト
+  * @param  {Object}    res レスポンスオブジェクト
+  * @return {Void}          none
   * @method
   */
-  main(op, req, res) {
+  main(op, fn, req, res) {
     const me=this;
     let error=true;
     me.menuBuild(op);
