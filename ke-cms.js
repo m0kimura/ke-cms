@@ -40,6 +40,7 @@ module.exports=class Cms extends Utility {
       options = {
         key: Fs.readFileSync(op.key),
         cert: Fs.readFileSync(op.csr),
+        ca: Fs.readFileSync(op.ca),
         passphrase: op.phrase
       };
       me.Server=Https.createServer(options, (req, res)=> {
@@ -123,8 +124,9 @@ module.exports=class Cms extends Utility {
     op.template=op.template||me.CFG.cms.template||'Template1.frm';
     op.key=op.key||me.CFG.cms.keyPath;
     op.csr=op.csr||me.CFG.cms.csrPath;
+    op.ca=op.ca||me.CFG.cms.caPath;
     op.phrase=op.phrase||me.CFG.cms.phrase;
-    op.domain=op.domain||me.CFG.cms.domian||'localhost';
+    op.domain=op.domain||me.CFG.cms.domain||'localhost';
     let l=this.CFG.current.search(/nodejs/);
     if(l<0){op.current=op.current||this.CFG.current;}
     else{op.current=op.current||this.CFG.current.substr(0, l-1);}
