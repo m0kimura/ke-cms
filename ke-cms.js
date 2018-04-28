@@ -91,7 +91,7 @@ module.exports=class Cms extends Utility {
     case 'parts': error=me.genFile(res, op.current+'/'); break;
     case 'source': error=me.putEscape(res, op.base+'/source/'); break;
     case 'favicon.ico': error=me.putFile(res, op.base+'/image/favicon.ico'); break;
-    case 'sitemap.xml': error=me.sitemap(res); break;
+    case 'sitemap.xml': error=me.sitemap(res, op); break;
     case 'reload': me.menuBuild(op, true); error=false;
       res.writeHead(200, {'Content-Type': 'text/plane', 'charset': 'utf-8'}); res.end('OK');
       break;
@@ -1181,18 +1181,21 @@ module.exports=class Cms extends Utility {
   /**
  * サイトマップXMLの生成
  * @param  {Object} res httpレスポンスインターフェイス
+ * @param  {Object} op  実行オプション
  * @return {String}     生成XMLテキスト
  * @method sitemap
  */
-  sitemap(res) {
+  sitemap(res, op) {
     let me=this; let out, ix, prty; out='';
+    let protocol='https://';
 
+    if(op.port!='443'){protocol='http://';}
     out+='<?xml version="1.0" encoding="UTF-8"?>';
     out+='<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
     for(ix in me.MENU){
       prty=me.MENU[ix].priority||0.5;
       out+='<url>';
-      out+='<loc>https://www.kmrweb.net'+me.MENU[ix].url+'</loc>';
+      out+='<loc>'+protocol+op.domain+me.MENU[ix].url+'</loc>';
       out+='<lastmod>20'+me.MENU[ix].date+'</lastmod>';
       out+='<changefreq>always</changefreq>';
       out+='<priority>'+prty+'</priority>';
