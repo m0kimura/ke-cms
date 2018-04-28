@@ -1192,7 +1192,7 @@ module.exports=class Cms extends Utility {
     for(ix in me.MENU){
       prty=me.MENU[ix].priority||0.5;
       out+='<url>';
-      out+='<loc>http://www.kmrweb.net'+me.MENU[ix].url+'</loc>';
+      out+='<loc>https://www.kmrweb.net'+me.MENU[ix].url+'</loc>';
       out+='<lastmod>20'+me.MENU[ix].date+'</lastmod>';
       out+='<changefreq>always</changefreq>';
       out+='<priority>'+prty+'</priority>';
