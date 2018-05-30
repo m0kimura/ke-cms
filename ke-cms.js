@@ -11,6 +11,16 @@ module.exports=class Cms extends Utility {
 /**
  * オブジェクトコンストラクション
  * @constructor Cms
+ * @property {Object}   CON             - 管理テーブル
+ * @property {String}   CON.today       - 今日の日付
+ * @property {Boolean}  CON.timeshift   - タイムシフト再生
+ * @property {String}   CON.menuBuild   - メニューの日付（いつ時点のメニューか）
+ * @property {Object}   SS              - セッショデータ
+ * @property {Object}   SS.URI          - URLをパース(host,port...)
+ * @property {Object}   SS.GET          - GETインターフェイスデータ
+ * @property {Object}   SS.POST         - POSTインターフェイスデータ
+ * @property {String}   SS.cid          - チェック用ID
+ * @property {String}   SS.token        - 次メッセージ用トークン
  */
   constructor() {
     super();
