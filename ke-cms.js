@@ -407,10 +407,10 @@ module.exports=class Cms extends Utility {
     let dt=CLR.setColor(bcolor);
     let d=CLR.setFont(''); let i; for(i in d){dt[i]=d[i];}
     let txt;
-    if(me.isExist(base+path)){
+    try{
       txt=Fs.readFileSync(base+path, {encoding: 'utf-8'});
-    }else{
-      txt='"File Not Found:"'+base+path; me.infoLog(txt);
+    }catch(e){
+      txt='"File Not Found:"'+base+path; me.infoLog(txt, e);
     }
     res.writeHead(200, {
       'Content-Type': me.ctype(me.modifier(base+path)), 'charset': 'utf-8'
